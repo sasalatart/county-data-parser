@@ -31,20 +31,22 @@ function parseFile(fileName) {
   let columnNames = data[1].slice(3, 3 + columnsPerYear);
   data = data.splice(2);
 
-  data.forEach(row => {
-    let countyCode = row[1];
-    let countyData = findOrCreateCountyData(countyCode, row);
+  data.forEach(row => parseRow(title, row, years, columnNames));
+}
 
-    years.forEach((year, i) => {
-      let yearData = { year: year };
-      columnNames.forEach((colName, j) => {
-        yearData[colName] = row[columnOffset + (i * columnsPerYear) + j];
-      });
+function parseRow(title, row, years, columnNames) {
+  let countyCode = row[1];
+  let countyData = findOrCreateCountyData(countyCode, row);
 
-      countyData[`${title}`] = countyData[`${title}`] || [];
-      countyData[`${title}`].push(yearData);
-      saveCountyData(countyData);
+  years.forEach((year, i) => {
+    let yearData = { year: year };
+    columnNames.forEach((colName, j) => {
+      yearData[colName] = row[columnOffset + (i * columnNames.length) + j];
     });
+
+    countyData[`${title}`] = countyData[`${title}`] || [];
+    countyData[`${title}`].push(yearData);
+    saveCountyData(countyData);
   });
 }
 
