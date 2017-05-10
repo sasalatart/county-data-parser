@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const xlsx = require('node-xlsx').default;
 const jsonfile = require('jsonfile');
 
@@ -15,6 +16,10 @@ fs.readdir(inputDir, (err, files) => {
 });
 
 function parseFile(fileName) {
+  if (path.extname(fileName) !== '.xlsx') {
+    return;
+  }
+
   let worksheet = xlsx.parse(`${inputDir}/${fileName}`)[0];
   let { data } = worksheet;
 
