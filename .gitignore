@@ -2,6 +2,7 @@
 
 *.xlsx
 .DS_Store
+output.json
 
 ### Node ###
 
