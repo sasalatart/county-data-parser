@@ -1,0 +1,12 @@
+{
+  "name": "county-data-parser",
+  "version": "1.0.0",
+  "description": "Transform cdc.gov's diabetes .xsl information into JSON",
+  "main": "index.js",
+  "repository": "https://github.com/sasalatart/county-data-parser",
+  "author": "Sebastián Salata Ruiz-Tagle <SA.SalataRT@GMail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "node-xlsx": "^0.7.4"
+  }
+}
