@@ -42,13 +42,23 @@ function parseRow(title, row, years, columnNames) {
 
   years.forEach((year, i) => {
     let yearData = { year: year };
+
+    let containsInvalidData = false;
     columnNames.forEach((colName, j) => {
-      yearData[colName] = row[columnOffset + (i * columnNames.length) + j];
+      let value = row[columnOffset + (i * columnNames.length) + j];
+
+      if (isNaN(value)) {
+        containsInvalidData = true;
+      }
+
+      yearData[colName] = value;
     });
 
-    countyData[`${title}`] = countyData[`${title}`] || [];
-    countyData[`${title}`].push(yearData);
-    saveCountyData(countyData);
+    if (!containsInvalidData) {
+      countyData[`${title}`] = countyData[`${title}`] || [];
+      countyData[`${title}`].push(yearData);
+      saveCountyData(countyData);
+    }
   });
 }
 
