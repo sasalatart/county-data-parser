@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const xlsx = require('node-xlsx').default;
 const jsonfile = require('jsonfile');
+const camelCase = require('camelcase');
 
 const inputDir = `${__dirname}/data-xlsx`;
 const fipsCodes = [];
@@ -23,12 +24,13 @@ function parseFile(fileName) {
   let worksheet = xlsx.parse(`${inputDir}/${fileName}`)[0];
   let { data } = worksheet;
 
-  let title = data[0][0];
+  let title = camelCase(data[0][0]);
   console.log(`Parsing ${title}`);
 
   let years = data[0].filter(cell => !isNaN(cell));
   let columnsPerYear = data[0].indexOf(years[1]) - data[0].indexOf(years[0]);
   let columnNames = data[1].slice(3, 3 + columnsPerYear);
+  columnNames = columnNames.map(name => camelCaseColumn(name));
   data = data.splice(2);
 
   data.forEach(row => parseRow(title, row, years, columnNames));
@@ -50,6 +52,18 @@ function parseRow(title, row, years, columnNames) {
   });
 }
 
+function camelCaseColumn(column) {
+  if (column.indexOf('(men)') > -1) {
+    column = column.replace('(men)', '');
+    column = `male_${column}`;
+  } else if (column.indexOf('(women)') > -1) {
+    column = column.replace('(women)', '');
+    column = `female_${column}`;
+  }
+
+  return camelCase(column);
+}
+
 function findOrCreateCountyData(countyCode, row) {
   let countyDataIndex = fipsCodes.indexOf(countyCode);
   if (countyDataIndex > -1) {
@@ -59,7 +73,7 @@ function findOrCreateCountyData(countyCode, row) {
     let countyData = {
       state: row[0],
       fipsCode: countyCode,
-      county: row[2]
+      name: row[2]
     };
     outputJSON.push(countyData);
     return countyData;
