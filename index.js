@@ -55,8 +55,9 @@ function parseRow(title, row, years, columnNames) {
     });
 
     if (!containsInvalidData) {
-      countyData[`${title}`] = countyData[`${title}`] || [];
-      countyData[`${title}`].push(yearData);
+      countyData.statistics = countyData.statistics || {};
+      countyData.statistics[`${title}`] = countyData.statistics[`${title}`] || [];
+      countyData.statistics[`${title}`].push(yearData);
       saveCountyData(countyData);
     }
   });
