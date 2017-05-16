@@ -4,15 +4,20 @@ const xlsx = require('node-xlsx').default;
 const jsonfile = require('jsonfile');
 const camelCase = require('camelcase');
 
-const inputDir = `${__dirname}/data-xlsx`;
+const inputDir = `${__dirname}/${process.argv[2]}`;
+const outputDir = process.argv[3];
 const fipsCodes = [];
 const outputJSON = [];
 const columnOffset = 3;
 
 fs.readdir(inputDir, (err, files) => {
   files.forEach(fileName => parseFile(fileName));
-  jsonfile.writeFile('output.json', outputJSON, { spaces: 2 }, err => {
-    console.error(err);
+  jsonfile.writeFile(outputDir, outputJSON, { spaces: 2 }, err => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log(`Results written to ${outputDir}.`);
+    }
   });
 });
 
