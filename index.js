@@ -4,19 +4,20 @@ const xlsx = require('node-xlsx').default;
 const jsonfile = require('jsonfile');
 const camelCase = require('camelcase');
 
-const inputDir = `${__dirname}/${process.argv[2]}`;
-const outputDir = process.argv[3];
+const INPUT_DIR = `${__dirname}/${process.argv[2]}`;
+const OUTPUT_DIR = process.argv[3];
+const COLUMN_OFFSET = 3;
+
 const fipsCodes = [];
 const outputJSON = [];
-const columnOffset = 3;
 
-fs.readdir(inputDir, (err, files) => {
+fs.readdir(INPUT_DIR, (err, files) => {
   files.forEach(fileName => parseFile(fileName));
-  jsonfile.writeFile(outputDir, outputJSON, { spaces: 2 }, err => {
+  jsonfile.writeFile(OUTPUT_DIR, outputJSON, { spaces: 2 }, err => {
     if (err) {
       console.error(err);
     } else {
-      console.log(`Results written to ${outputDir}.`);
+      console.log(`Results written to ${OUTPUT_DIR}.`);
     }
   });
 });
@@ -26,14 +27,14 @@ function parseFile(fileName) {
     return;
   }
 
-  let worksheet = xlsx.parse(`${inputDir}/${fileName}`)[0];
+  const worksheet = xlsx.parse(`${INPUT_DIR}/${fileName}`)[0];
   let { data } = worksheet;
 
-  let title = camelCase(data[0][0]);
+  const title = camelCase(data[0][0]);
   console.log(`Parsing ${title}`);
 
-  let years = data[0].filter(cell => !isNaN(cell));
-  let columnsPerYear = data[0].indexOf(years[1]) - data[0].indexOf(years[0]);
+  const years = data[0].filter(cell => !isNaN(cell));
+  const columnsPerYear = data[0].indexOf(years[1]) - data[0].indexOf(years[0]);
   let columnNames = data[1].slice(3, 3 + columnsPerYear);
   columnNames = columnNames.map(name => camelCaseColumn(name));
   data = data.splice(2);
@@ -42,15 +43,15 @@ function parseFile(fileName) {
 }
 
 function parseRow(title, row, years, columnNames) {
-  let countyCode = row[1];
-  let countyData = findOrCreateCountyData(countyCode, row);
+  const countyCode = row[1];
+  const countyData = findOrCreateCountyData(countyCode, row);
 
   years.forEach((year, i) => {
-    let yearData = { year: year };
+    const yearData = { year: year };
 
     let containsInvalidData = false;
     columnNames.forEach((colName, j) => {
-      let value = row[columnOffset + (i * columnNames.length) + j];
+      let value = row[COLUMN_OFFSET + (i * columnNames.length) + j];
 
       if (isNaN(value)) {
         containsInvalidData = true;
@@ -81,12 +82,12 @@ function camelCaseColumn(column) {
 }
 
 function findOrCreateCountyData(countyCode, row) {
-  let countyDataIndex = fipsCodes.indexOf(countyCode);
+  const countyDataIndex = fipsCodes.indexOf(countyCode);
   if (countyDataIndex > -1) {
     return outputJSON[countyDataIndex];
   } else {
     fipsCodes.push(countyCode);
-    let countyData = {
+    const countyData = {
       state: row[0],
       fipsCode: countyCode,
       name: row[2]
@@ -97,7 +98,7 @@ function findOrCreateCountyData(countyCode, row) {
 }
 
 function saveCountyData(county) {
-  let countyDataIndex = fipsCodes.indexOf(county.fipsCode);
+  const countyDataIndex = fipsCodes.indexOf(county.fipsCode);
   if (countyDataIndex > -1) {
     outputJSON[countyDataIndex] = county;
   } else {
